@@ -11,10 +11,7 @@ class Combinators < Proc
   def and(*valueMatch)
     Combinators.new do
     |objectFinal| self.call(objectFinal) && valueMatch.all?{ |m| m.call(objectFinal)}
-
     end
-
-
   end
 
   def or(*valueMatch)
