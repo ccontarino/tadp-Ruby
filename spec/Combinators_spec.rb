@@ -1,105 +1,83 @@
 require 'rspec'
 require_relative '../src/Matcher'
 require_relative '../src/Symbol'
+require_relative '../src/Combinators'
 
 describe ' Matcher ' do
   self.define_singleton_method(:include_matcher){include Matcher}
   self.include_matcher
+
+  class Guerrero
+
+  end
+
+  module Defensor
+
+    def descansar
+      self.energia += 10
+    end
+
+  end
+  module Atacante
+
+    def atacar(un_defensor)
+      if self.potencial_ofensivo > un_defensor.potencial_defensivo
+        danio = self.potencial_ofensivo - un_defensor.potencial_defensivo
+        un_defensor.sufri_danio(danio)
+      end
+      self.descansado = false
+    end
+
+    def potencial_ofensivo
+      self.descansado ? @potencial_ofensivo * 2 : @potencial_ofensivo
+    end
+
+    def descansar
+      self.descansado = true
+    end
+
+  end
+  class Guerrero
+    include Atacante
+    include Defensor
+  end
+  class Muralla
+    include Defensor
+    def fly
+      '(headache)'
+    end
+  end
+  una_muralla=Muralla.new
+  un_guerrero=Guerrero.new
+
+
+
   it 'and: se cumple si se cumplen todos los matchers de la composición.' do
 
-
-
-
-    class Muralla
-      def fly
-        '(headache)'
-      end
-    end
-
-    class Defensor < Muralla
-      def fly
-        'do some flying'
-      end
-    end
-    class Atacante < Muralla
-      def fly
-        'do some flying'
-      end
-    end
-
-    expect(type(Defensor).and(type(Atacante)).call(una_muralla)).to eq(true)
-
-
-
-
-
-  end
-
-  it 'de valor: se cumple si el valor del objeto es idéntico al indicado.' do
-    self.define_singleton_method(:include_matcher){include Matcher}
-    self.include_matcher
-    expect(val(5).call(5)).to eq(true)
-    expect(val(5).call('5')).to eq(false)
-    expect(val(5).call(4)).to eq(false)
-  end
-
-  it 'de tipo: se cumple si el objeto es del tipo indicado.' do
-    self.define_singleton_method(:include_matcher){include Matcher}
-    self.include_matcher
-    expect(type(Integer).call(5)).to eq(true)
-    expect(type(Symbol).call("Trust me, I'm a Symbol..")).to eq(false)
-    expect(type(Symbol).call(:a_real_symbol)).to eq(true)
-  end
-
-  it 'de listas: se cumple si el objeto es una lista, cuyos primeros N elementos coinciden con los indicados; puede además requerir que el tamaño de la lista sea N.' do
-    self.define_singleton_method(:include_matcher){include Matcher}
-    self.include_matcher
-    an_array = [1, 2, 3, 4]
-    expect(list([1, 2, 3, 4], true).call(an_array)).to eq(true)
-    expect(list([1, 2, 3, 4], false).call(an_array)).to eq(true)
-
-    expect(list([1, 2, 3], true).call(an_array)).to eq(false)
-    expect(list([1, 2, 3], false).call(an_array)).to eq(true)
-
-    expect(list([2, 1, 3, 4], true).call(an_array)).to eq(false)
-    expect(list([2, 1, 3, 4], false).call(an_array)).to eq(false)
-
-    expect(list([2, 1, 3, 4], true).call(an_array)).to eq(false)
-    expect(list([2, 1, 3, 4], false).call(an_array)).to eq(false)
-
-    expect(list([1, 2, 3]).call(an_array)).to eq(false)
-
-    expect(list([:a, :b, :c, :d]).call(an_array)).to eq(true)
+    #puts "defensor #{type(una_muralla)}"
+    expect(type(Atacante).and(type(Defensor)).call(una_muralla)).to eq(false)
+    expect(type(Defensor).and(type(Atacante)).call(un_guerrero)).to eq(true)
+    expect(duck(:+).and(type(Fixnum), val(5)).call(5)).to eq(true)
 
   end
 
 
-  it 'duck typing: se cumple si el objeto entiende una serie de mensajes determinados.' do
-    self.define_singleton_method(:include_matcher){include Matcher}
-    self.include_matcher
 
-    class Psyduck
-      def cuack
-        'psy..duck?'
-      end
-      def fly
-        '(headache)'
-      end
-    end
+  it 'or: se cumple si se cumple al menos uno de los matchers de la composición.' do
 
-    class Dragon
-      def fly
-        'do some flying'
-      end
-    end
-    a_dragon = Dragon.new
-    psyduck = Psyduck.new
+    expect(type(Defensor).or(type(Atacante)).call(una_muralla)).to eq(true)
+    expect(type(Defensor).or(type(Atacante)).call('un delfín')).to eq(false)
 
-    expect(duck(:cuack, :fly).call(psyduck)).to eq(true)
-    expect(duck(:cuack, :fly).call(a_dragon)).to eq(false)
-    expect(duck(:fly).call(a_dragon)).to eq(true)
-    expect(duck(:to_s).call(Object.new)).to eq(true)
   end
+
+
+  it 'not: genera el matcher opuesto.' do
+    un_misil = Object.new
+    expect(type(Defensor).not.call(una_muralla)).to eq(false)
+    expect(type(Defensor).not.call(un_misil)).to eq(true)
+
+  end
+
 
 
 end

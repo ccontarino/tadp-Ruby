@@ -1,16 +1,36 @@
 require_relative './Matcher'
+class Combinators < Proc
 
-module Combinators
-attr_accessor :lastResult
-  def initialize(value)
-  @lastResult = []
-  @lastResult.push(value);
+  attr_accessor :lastResult
+  def initialize()
+
+    @lastResult = []
+    super
   end
 
-  def and(value)
-    @lastResult.push(value);
+  def and(*valueMatch)
+    Combinators.new do
+    |objectFinal| self.call(objectFinal) && valueMatch.all?{ |m| m.call(objectFinal)}
+
+    end
+
+
   end
 
+  def or(*valueMatch)
+    Combinators.new do
+    |objectFinal| self.call(objectFinal) || valueMatch.any?{ |m| m.call(objectFinal)}
+    end
 
+
+  end
+
+  def not(*valueMatch)
+    Combinators.new do
+    |objectFinal| not self.call(objectFinal) || valueMatch.any?{ |m| m.call(objectFinal)}
+    end
+
+
+  end
 
 end

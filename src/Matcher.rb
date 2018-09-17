@@ -5,13 +5,13 @@ module Matcher
     proc { |param2| param.equal?param2 }
   end
 
-  def type(type_param)
-    proc do
-    |param| (param.is_a?type_param)
-    end
+  def type(type_param) Combinators.new {
+    |param|
+    param.is_a?(type_param)
+  }
   end
 
-  def list(list, param2 = true) proc do
+  def list(list, param2 = true)Combinators.new {
   |param|
     if (list.first.is_a?Symbol)
       true
@@ -26,17 +26,13 @@ module Matcher
         end
       end
     end
-  end
+  }
   end
 
-  def duck(*listSelector) proc do | object |
+  def duck(*listSelector) Combinators.new { | object |
     listSelector.all?{ |selector| object.respond_to?(selector.to_sym, include_all=false) }
-  end
+  }
   end
 
-  def includeCombinator(obj)
-    boleanPower=obj.define_singleton_method(:injectCombinator){include Combinators}
-    boleanPower.injectCombinator
-  end
 
 end

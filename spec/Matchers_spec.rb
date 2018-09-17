@@ -9,10 +9,9 @@ describe ' Matcher ' do
   it 'de variable: se cumple siempre. Vendría a ser el matcher identidad. Su verdadera utilidad es bindear las variables (más sobre binding en la próxima sección).' do
 
     #puts "#{self.methods(regular=false)}"
-   # expect(:a_variable_name.call('anything')).to eq(true)
+   expect(:a_variable_name.call('anything')).to eq(true)
 
   end
-
   it 'de valor: se cumple si el valor del objeto es idéntico al indicado.' do
     self.define_singleton_method(:include_matcher){include Matcher}
     self.include_matcher
@@ -36,10 +35,8 @@ describe ' Matcher ' do
     expect(list([1, 2, 3, 4], true).call(an_array)).to eq(true)
     expect(list([1, 2, 3, 4], false).call(an_array)).to eq(true)
 
-
     expect(list([1, 2, 3], true).call(an_array)).to eq(false)
     expect(list([1, 2, 3], false).call(an_array)).to eq(true)
-
 
     expect(list([2, 1, 3, 4], true).call(an_array)).to eq(false)
     expect(list([2, 1, 3, 4], false).call(an_array)).to eq(false)
