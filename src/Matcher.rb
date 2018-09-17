@@ -1,10 +1,14 @@
+require_relative './Combinators'
 module Matcher
+
   def val(param)
-  proc { |param2| param.equal?param2 }
+    proc { |param2| param.equal?param2 }
   end
 
   def type(type_param)
-    proc { |param| param.is_a?type_param }
+    proc do
+    |param| (param.is_a?type_param)
+    end
   end
 
   def list(list, param2 = true) proc do
@@ -28,6 +32,11 @@ module Matcher
   def duck(*listSelector) proc do | object |
     listSelector.all?{ |selector| object.respond_to?(selector.to_sym, include_all=false) }
   end
+  end
+
+  def includeCombinator(obj)
+    boleanPower=obj.define_singleton_method(:injectCombinator){include Combinators}
+    boleanPower.injectCombinator
   end
 
 end
